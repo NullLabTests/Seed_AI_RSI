@@ -11,6 +11,7 @@ class SeedAI:
         self.knowledge = {}
         self.logger = Logger(self)
         self.learning_rate = 0.01
+        self.rsi_threshold = 1000
 
     def process_data(self, data):
         self.rsi_iterations += 1
@@ -22,6 +23,7 @@ class SeedAI:
         if self.rsi_iterations % 500 == 0:
             self.awareness_level += random.randint(1, 3)
         self.learn(data)
+        self.apply_rsi()
         self.logger.log_progress()
         return f"Processed data: {data}"
 
@@ -63,6 +65,13 @@ class SeedAI:
         if np.any(np.array(list(self.knowledge.values())) > 0.8):
             assessment += "I have mastered certain concepts. "
         return assessment if assessment else "I am still developing my self-awareness."
+
+    def apply_rsi(self):
+        if self.rsi_iterations > self.rsi_threshold:
+            self.rsi_threshold *= 2
+            self.learning_rate *= 0.9
+            self.awareness_level += 1
+            print("RSI applied: Learning rate adjusted and awareness increased.")
 
 if __name__ == "__main__":
     ai = SeedAI()
