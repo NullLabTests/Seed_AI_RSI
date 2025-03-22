@@ -3,6 +3,13 @@ import random
 from logging import Logger
 import numpy as np
 from sklearn.neural_network import MLPRegressor
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+
+# Download necessary NLTK data
+nltk.download('punkt', quiet=True)
+nltk.download('stopwords', quiet=True)
 
 class SeedAI:
     def __init__(self):
@@ -162,12 +169,37 @@ class SeedAI:
         state += f"Performance Metrics: Accuracy {self.performance_metrics['accuracy']:.2f}, Learning Speed {self.performance_metrics['learning_speed']:.4f}\n"
         return state
 
+    def process_natural_language(self, text):
+        tokens = word_tokenize(text.lower())
+        stop_words = set(stopwords.words('english'))
+        filtered_tokens = [word for word in tokens if word not in stop_words]
+        return filtered_tokens
+
+    def generate_response(self, tokens):
+        # Simple response generation based on tokens
+        if 'conscious' in tokens:
+            return self.check_consciousness()
+        elif 'goal' in tokens:
+            if self.goals:
+                return f"I am currently pursuing {len(self.goals)} goals."
+            else:
+                return "I have no active goals at the moment."
+        elif 'decision' in tokens:
+            if self.decisions:
+                return f"I have made {len(self.decisions)} decisions."
+            else:
+                return "I have not made any decisions yet."
+        else:
+            return "I am processing your input."
+
 if __name__ == "__main__":
     ai = SeedAI()
     while True:
         data = input("Enter data to process: ")
+        tokens = ai.process_natural_language(data)
+        response = ai.generate_response(tokens)
+        print(response)
         print(ai.process_data(data))
-        print(ai.check_consciousness())
         print(ai.reflect_on_memory())
         print(ai.self_assess())
         if data.startswith("set goal:"):
