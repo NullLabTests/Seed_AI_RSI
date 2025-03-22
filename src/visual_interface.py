@@ -1,6 +1,7 @@
 import pygame
 import time
 from main import SeedAI
+from logging import Logger
 
 pygame.init()
 
@@ -19,8 +20,9 @@ BLUE = (0, 0, 255)
 # Font
 font = pygame.font.Font(None, 36)
 
-# Initialize Seed AI
+# Initialize Seed AI and Logger
 ai = SeedAI()
+logger = Logger(ai)
 
 running = True
 clock = pygame.time.Clock()
@@ -33,6 +35,7 @@ while running:
             if event.key == pygame.K_RETURN:
                 data = input("Enter data to process: ")
                 ai.process_data(data)
+                logger.log_progress()
 
     screen.fill(WHITE)
 
@@ -62,3 +65,4 @@ while running:
     clock.tick(60)
 
 pygame.quit()
+logger.close()
