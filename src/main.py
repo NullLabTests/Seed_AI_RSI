@@ -2,6 +2,7 @@ import time
 import random
 from logging import Logger
 import numpy as np
+from sklearn.neural_network import MLPRegressor
 
 class SeedAI:
     def __init__(self):
@@ -15,6 +16,7 @@ class SeedAI:
         self.goals = []
         self.performance_metrics = {'accuracy': 0, 'learning_speed': 0}
         self.decisions = []
+        self.model = MLPRegressor(hidden_layer_sizes=(10, 10), max_iter=1000, random_state=42)
 
     def process_data(self, data):
         self.rsi_iterations += 1
@@ -52,8 +54,12 @@ class SeedAI:
         if data not in self.knowledge:
             self.knowledge[data] = np.random.rand(10)
         else:
-            # Simple gradient descent update
-            error = 1 - self.knowledge[data]
+            # Use the neural network model for learning
+            X = np.array(list(self.knowledge.values()))
+            y = np.mean(X, axis=1)
+            self.model.fit(X, y)
+            prediction = self.model.predict([self.knowledge[data]])[0]
+            error = 1 - prediction
             self.knowledge[data] += self.learning_rate * error
         if np.mean(self.knowledge[data]) > 0.5:
             self.awareness_level += 0.1
