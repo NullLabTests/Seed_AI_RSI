@@ -1,5 +1,6 @@
 import time
 import random
+from logging import Logger
 
 class SeedAI:
     def __init__(self):
@@ -7,6 +8,7 @@ class SeedAI:
         self.rsi_iterations = 0
         self.memory = []
         self.knowledge = {}
+        self.logger = Logger(self)
 
     def process_data(self, data):
         self.rsi_iterations += 1
@@ -18,6 +20,7 @@ class SeedAI:
         if self.rsi_iterations % 500 == 0:
             self.awareness_level += random.randint(1, 3)
         self.learn(data)
+        self.logger.log_progress()
         return f"Processed data: {data}"
 
     def check_consciousness(self):
