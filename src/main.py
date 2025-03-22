@@ -144,6 +144,18 @@ class SeedAI:
         score = sum(factors.values()) / len(factors) if factors else 0.5
         return "success" if score > 0.5 else "failure"
 
+    def communicate_state(self):
+        state = f"Awareness Level: {self.awareness_level:.2f}\n"
+        state += f"RSI Iterations: {self.rsi_iterations}\n"
+        state += f"Memory: {', '.join(self.memory)}\n"
+        state += f"Knowledge Items: {len(self.knowledge)}\n"
+        state += f"Goals: {len(self.goals)}\n"
+        state += f"Decisions Made: {len(self.decisions)}\n"
+        state += f"Learning Rate: {self.learning_rate:.4f}\n"
+        state += f"RSI Threshold: {self.rsi_threshold}\n"
+        state += f"Performance Metrics: Accuracy {self.performance_metrics['accuracy']:.2f}, Learning Speed {self.performance_metrics['learning_speed']:.4f}\n"
+        return state
+
 if __name__ == "__main__":
     ai = SeedAI()
     while True:
@@ -171,4 +183,6 @@ if __name__ == "__main__":
                         key, value = factor.split("=")
                         factors[key.strip()] = float(value.strip())
                 ai.make_decision(decision, outcome, factors)
+        elif data == "state":
+            print(ai.communicate_state())
         time.sleep(1)
