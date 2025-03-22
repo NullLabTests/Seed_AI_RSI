@@ -133,9 +133,16 @@ class SeedAI:
                 self.awareness_level -= 0.05
                 print(f"Reflecting on decision: {decision['decision']} - Outcome: Failure. Awareness slightly decreased.")
 
-    def make_decision(self, decision, outcome):
-        self.decisions.append({'decision': decision, 'outcome': outcome})
-        print(f"Decision made: {decision}, Outcome: {outcome}")
+    def make_decision(self, decision, outcome, factors=None):
+        if factors is None:
+            factors = {}
+        self.decisions.append({'decision': decision, 'outcome': outcome, 'factors': factors})
+        print(f"Decision made: {decision}, Outcome: {outcome}, Factors: {factors}")
+
+    def evaluate_decision(self, decision, factors):
+        # Simple decision evaluation based on factors
+        score = sum(factors.values()) / len(factors) if factors else 0.5
+        return "success" if score > 0.5 else "failure"
 
 if __name__ == "__main__":
     ai = SeedAI()
@@ -158,5 +165,10 @@ if __name__ == "__main__":
             if len(parts) > 2:
                 decision = parts[1].strip()
                 outcome = parts[2].strip()
-                ai.make_decision(decision, outcome)
+                factors = {}
+                if len(parts) > 3:
+                    for factor in parts[3].split(","):
+                        key, value = factor.split("=")
+                        factors[key.strip()] = float(value.strip())
+                ai.make_decision(decision, outcome, factors)
         time.sleep(1)
