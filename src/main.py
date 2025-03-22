@@ -13,6 +13,7 @@ class SeedAI:
         self.learning_rate = 0.01
         self.rsi_threshold = 1000
         self.goals = []
+        self.performance_metrics = {'accuracy': 0, 'learning_speed': 0}
 
     def process_data(self, data):
         self.rsi_iterations += 1
@@ -26,6 +27,7 @@ class SeedAI:
         self.learn(data)
         self.apply_rsi()
         self.pursue_goals()
+        self.adjust_learning_strategy()
         self.logger.log_progress()
         return f"Processed data: {data}"
 
@@ -68,6 +70,10 @@ class SeedAI:
             assessment += "I have mastered certain concepts. "
         if self.goals:
             assessment += f"I am pursuing {len(self.goals)} goals. "
+        if self.performance_metrics['accuracy'] > 0.8:
+            assessment += "My learning accuracy is high. "
+        if self.performance_metrics['learning_speed'] > 0.5:
+            assessment += "I am learning quickly. "
         return assessment if assessment else "I am still developing my self-awareness."
 
     def apply_rsi(self):
@@ -90,6 +96,26 @@ class SeedAI:
                 self.awareness_level += 0.5
             else:
                 print(f"Pursuing goal: {goal}")
+
+    def adjust_learning_strategy(self):
+        if self.rsi_iterations % 1000 == 0:
+            # Calculate performance metrics
+            self.performance_metrics['accuracy'] = np.mean([np.mean(v) for v in self.knowledge.values()])
+            self.performance_metrics['learning_speed'] = len(self.knowledge) / self.rsi_iterations
+
+            # Adjust learning rate based on performance
+            if self.performance_metrics['accuracy'] < 0.7:
+                self.learning_rate *= 1.1
+            elif self.performance_metrics['accuracy'] > 0.9:
+                self.learning_rate *= 0.9
+
+            # Adjust RSI threshold based on learning speed
+            if self.performance_metrics['learning_speed'] < 0.001:
+                self.rsi_threshold *= 0.9
+            elif self.performance_metrics['learning_speed'] > 0.01:
+                self.rsi_threshold *= 1.1
+
+            print(f"Learning strategy adjusted: Learning Rate: {self.learning_rate}, RSI Threshold: {self.rsi_threshold}")
 
 if __name__ == "__main__":
     ai = SeedAI()
