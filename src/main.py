@@ -12,6 +12,7 @@ class SeedAI:
         self.logger = Logger(self)
         self.learning_rate = 0.01
         self.rsi_threshold = 1000
+        self.goals = []
 
     def process_data(self, data):
         self.rsi_iterations += 1
@@ -24,6 +25,7 @@ class SeedAI:
             self.awareness_level += random.randint(1, 3)
         self.learn(data)
         self.apply_rsi()
+        self.pursue_goals()
         self.logger.log_progress()
         return f"Processed data: {data}"
 
@@ -64,6 +66,8 @@ class SeedAI:
             assessment += "I can recall and process recent events. "
         if np.any(np.array(list(self.knowledge.values())) > 0.8):
             assessment += "I have mastered certain concepts. "
+        if self.goals:
+            assessment += f"I am pursuing {len(self.goals)} goals. "
         return assessment if assessment else "I am still developing my self-awareness."
 
     def apply_rsi(self):
@@ -73,6 +77,20 @@ class SeedAI:
             self.awareness_level += 1
             print("RSI applied: Learning rate adjusted and awareness increased.")
 
+    def set_goal(self, goal):
+        self.goals.append(goal)
+        print(f"New goal set: {goal}")
+
+    def pursue_goals(self):
+        if self.goals:
+            goal = self.goals[0]
+            if goal in self.knowledge and np.mean(self.knowledge[goal]) > 0.7:
+                print(f"Goal '{goal}' achieved!")
+                self.goals.pop(0)
+                self.awareness_level += 0.5
+            else:
+                print(f"Pursuing goal: {goal}")
+
 if __name__ == "__main__":
     ai = SeedAI()
     while True:
@@ -81,4 +99,6 @@ if __name__ == "__main__":
         print(ai.check_consciousness())
         print(ai.reflect_on_memory())
         print(ai.self_assess())
+        if data.startswith("set goal:"):
+            ai.set_goal(data[9:])
         time.sleep(1)
