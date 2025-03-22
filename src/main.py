@@ -7,6 +7,9 @@ import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
 
 # Download necessary NLTK data
 nltk.download('punkt', quiet=True)
@@ -26,6 +29,7 @@ class SeedAI:
         self.decisions = []
         self.model = MLPRegressor(hidden_layer_sizes=(10, 10), max_iter=1000, random_state=42)
         self.prediction_model = LinearRegression()
+        self.scaler = StandardScaler()
 
     def process_data(self, data):
         self.rsi_iterations += 1
@@ -42,6 +46,7 @@ class SeedAI:
         self.adjust_learning_strategy()
         self.reflect_on_decisions()
         self.predict_future_state()
+        self.apply_reinforcement_learning()
         self.logger.log_progress()
         return f"Processed data: {data}"
 
@@ -203,6 +208,24 @@ class SeedAI:
             future_iterations = self.rsi_iterations + 1000
             predicted_knowledge = self.prediction_model.predict([[future_iterations]])
             print(f"Predicted number of knowledge items in 1000 iterations: {predicted_knowledge[0]:.2f}")
+
+    def apply_reinforcement_learning(self):
+        if self.rsi_iterations % 1000 == 0 and len(self.knowledge) > 10:
+            X = np.array(list(self.knowledge.values()))
+            y = np.mean(X, axis=1)
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+            X_train_scaled = self.scaler.fit_transform(X_train)
+            X_test_scaled = self.scaler.transform(X_test)
+            self.model.fit(X_train_scaled, y_train)
+            y_pred = self.model.predict(X_test_scaled)
+            mse = mean_squared_error(y_test, y_pred)
+            if mse < 0.1:
+                self.learning_rate *= 0.95
+                self.awareness_level += 0.2
+                print("Reinforcement Learning applied: Model improved, learning rate adjusted, and awareness increased.")
+            else:
+                self.learning_rate *= 1.05
+                print("Reinforcement Learning applied: Model needs improvement, learning rate increased.")
 
 if __name__ == "__main__":
     ai = SeedAI()
