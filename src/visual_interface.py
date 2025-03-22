@@ -26,6 +26,7 @@ logger = Logger(ai)
 
 running = True
 clock = pygame.time.Clock()
+input_text = ''
 
 while running:
     for event in pygame.event.get():
@@ -33,9 +34,13 @@ while running:
             running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
-                data = input("Enter data to process: ")
-                ai.process_data(data)
+                ai.process_data(input_text)
                 logger.log_progress()
+                input_text = ''
+            elif event.key == pygame.K_BACKSPACE:
+                input_text = input_text[:-1]
+            else:
+                input_text += event.unicode
 
     screen.fill(WHITE)
 
@@ -60,6 +65,10 @@ while running:
     # Draw knowledge count
     knowledge_text = font.render(f"Knowledge Items: {len(ai.knowledge)}", True, BLACK)
     screen.blit(knowledge_text, (10, 170))
+
+    # Draw input field
+    input_field = font.render(f"Input: {input_text}", True, BLACK)
+    screen.blit(input_field, (10, 210))
 
     pygame.display.flip()
     clock.tick(60)
