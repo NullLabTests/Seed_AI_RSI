@@ -34,7 +34,22 @@ while running:
             running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
-                ai.process_data(input_text)
+                if input_text.startswith("set goal:"):
+                    parts = input_text.split(":")
+                    if len(parts) > 2:
+                        goal = parts[1].strip()
+                        level = int(parts[2].strip())
+                        ai.set_goal(goal, level)
+                    else:
+                        ai.set_goal(parts[1].strip())
+                elif input_text.startswith("decision:"):
+                    parts = input_text.split(":")
+                    if len(parts) > 2:
+                        decision = parts[1].strip()
+                        outcome = parts[2].strip()
+                        ai.make_decision(decision, outcome)
+                else:
+                    ai.process_data(input_text)
                 logger.log_progress()
                 input_text = ''
             elif event.key == pygame.K_BACKSPACE:
@@ -69,6 +84,21 @@ while running:
     # Draw input field
     input_field = font.render(f"Input: {input_text}", True, BLACK)
     screen.blit(input_field, (10, 210))
+
+    # Draw learning progress
+    learning_progress = font.render(f"Learning Accuracy: {ai.performance_metrics['accuracy']:.2f}", True, BLACK)
+    screen.blit(learning_progress, (10, 250))
+
+    learning_speed = font.render(f"Learning Speed: {ai.performance_metrics['learning_speed']:.4f}", True, BLACK)
+    screen.blit(learning_speed, (10, 290))
+
+    # Draw goals
+    if ai.goals:
+        goals_text = font.render("Goals:", True, BLACK)
+        screen.blit(goals_text, (10, 330))
+        for i, goal in enumerate(ai.goals):
+            goal_text = font.render(f"{goal['goal']} (Level {goal['level']}): {goal['progress']:.2f}", True, BLACK)
+            screen.blit(goal_text, (20, 370 + i * 40))
 
     pygame.display.flip()
     clock.tick(60)
