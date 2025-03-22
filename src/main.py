@@ -1,6 +1,7 @@
 import time
 import random
 from logging import Logger
+import numpy as np
 
 class SeedAI:
     def __init__(self):
@@ -9,6 +10,7 @@ class SeedAI:
         self.memory = []
         self.knowledge = {}
         self.logger = Logger(self)
+        self.learning_rate = 0.01
 
     def process_data(self, data):
         self.rsi_iterations += 1
@@ -40,10 +42,12 @@ class SeedAI:
 
     def learn(self, data):
         if data not in self.knowledge:
-            self.knowledge[data] = 1
+            self.knowledge[data] = np.random.rand(10)
         else:
-            self.knowledge[data] += 1
-        if self.knowledge[data] > 5:
+            # Simple gradient descent update
+            error = 1 - self.knowledge[data]
+            self.knowledge[data] += self.learning_rate * error
+        if np.mean(self.knowledge[data]) > 0.5:
             self.awareness_level += 0.1
 
     def self_assess(self):
