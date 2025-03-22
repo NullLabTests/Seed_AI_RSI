@@ -14,6 +14,7 @@ class SeedAI:
         self.rsi_threshold = 1000
         self.goals = []
         self.performance_metrics = {'accuracy': 0, 'learning_speed': 0}
+        self.decisions = []
 
     def process_data(self, data):
         self.rsi_iterations += 1
@@ -28,6 +29,7 @@ class SeedAI:
         self.apply_rsi()
         self.pursue_goals()
         self.adjust_learning_strategy()
+        self.reflect_on_decisions()
         self.logger.log_progress()
         return f"Processed data: {data}"
 
@@ -74,6 +76,8 @@ class SeedAI:
             assessment += "My learning accuracy is high. "
         if self.performance_metrics['learning_speed'] > 0.5:
             assessment += "I am learning quickly. "
+        if self.decisions:
+            assessment += "I reflect on my past decisions. "
         return assessment if assessment else "I am still developing my self-awareness."
 
     def apply_rsi(self):
@@ -119,6 +123,20 @@ class SeedAI:
 
             print(f"Learning strategy adjusted: Learning Rate: {self.learning_rate}, RSI Threshold: {self.rsi_threshold}")
 
+    def reflect_on_decisions(self):
+        if self.decisions and self.rsi_iterations % 500 == 0:
+            decision = self.decisions[-1]
+            if decision['outcome'] == 'success':
+                self.awareness_level += 0.1
+                print(f"Reflecting on decision: {decision['decision']} - Outcome: Success. Awareness increased.")
+            else:
+                self.awareness_level -= 0.05
+                print(f"Reflecting on decision: {decision['decision']} - Outcome: Failure. Awareness slightly decreased.")
+
+    def make_decision(self, decision, outcome):
+        self.decisions.append({'decision': decision, 'outcome': outcome})
+        print(f"Decision made: {decision}, Outcome: {outcome}")
+
 if __name__ == "__main__":
     ai = SeedAI()
     while True:
@@ -135,4 +153,10 @@ if __name__ == "__main__":
                 ai.set_goal(goal, level)
             else:
                 ai.set_goal(parts[1].strip())
+        elif data.startswith("decision:"):
+            parts = data.split(":")
+            if len(parts) > 2:
+                decision = parts[1].strip()
+                outcome = parts[2].strip()
+                ai.make_decision(decision, outcome)
         time.sleep(1)
