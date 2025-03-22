@@ -83,19 +83,21 @@ class SeedAI:
             self.awareness_level += 1
             print("RSI applied: Learning rate adjusted and awareness increased.")
 
-    def set_goal(self, goal):
-        self.goals.append(goal)
-        print(f"New goal set: {goal}")
+    def set_goal(self, goal, level=1):
+        self.goals.append({'goal': goal, 'level': level, 'progress': 0})
+        print(f"New goal set: {goal} at level {level}")
 
     def pursue_goals(self):
         if self.goals:
-            goal = self.goals[0]
-            if goal in self.knowledge and np.mean(self.knowledge[goal]) > 0.7:
-                print(f"Goal '{goal}' achieved!")
-                self.goals.pop(0)
-                self.awareness_level += 0.5
-            else:
-                print(f"Pursuing goal: {goal}")
+            for goal in self.goals:
+                if goal['goal'] in self.knowledge:
+                    goal['progress'] = np.mean(self.knowledge[goal['goal']])
+                    if goal['progress'] > 0.7 * goal['level']:
+                        print(f"Goal '{goal['goal']}' at level {goal['level']} achieved!")
+                        self.goals.remove(goal)
+                        self.awareness_level += 0.5 * goal['level']
+                    else:
+                        print(f"Pursuing goal: {goal['goal']} at level {goal['level']}, progress: {goal['progress']:.2f}")
 
     def adjust_learning_strategy(self):
         if self.rsi_iterations % 1000 == 0:
@@ -126,5 +128,11 @@ if __name__ == "__main__":
         print(ai.reflect_on_memory())
         print(ai.self_assess())
         if data.startswith("set goal:"):
-            ai.set_goal(data[9:])
+            parts = data.split(":")
+            if len(parts) > 2:
+                goal = parts[1].strip()
+                level = int(parts[2].strip())
+                ai.set_goal(goal, level)
+            else:
+                ai.set_goal(parts[1].strip())
         time.sleep(1)
