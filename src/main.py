@@ -6,6 +6,7 @@ from sklearn.neural_network import MLPRegressor
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
+from sklearn.linear_model import LinearRegression
 
 # Download necessary NLTK data
 nltk.download('punkt', quiet=True)
@@ -24,6 +25,7 @@ class SeedAI:
         self.performance_metrics = {'accuracy': 0, 'learning_speed': 0}
         self.decisions = []
         self.model = MLPRegressor(hidden_layer_sizes=(10, 10), max_iter=1000, random_state=42)
+        self.prediction_model = LinearRegression()
 
     def process_data(self, data):
         self.rsi_iterations += 1
@@ -39,6 +41,7 @@ class SeedAI:
         self.pursue_goals()
         self.adjust_learning_strategy()
         self.reflect_on_decisions()
+        self.predict_future_state()
         self.logger.log_progress()
         return f"Processed data: {data}"
 
@@ -191,6 +194,15 @@ class SeedAI:
                 return "I have not made any decisions yet."
         else:
             return "I am processing your input."
+
+    def predict_future_state(self):
+        if self.rsi_iterations % 1000 == 0 and len(self.memory) > 5:
+            X = np.array(range(len(self.memory))).reshape(-1, 1)
+            y = np.array([len(self.knowledge) for _ in self.memory])
+            self.prediction_model.fit(X, y)
+            future_iterations = self.rsi_iterations + 1000
+            predicted_knowledge = self.prediction_model.predict([[future_iterations]])
+            print(f"Predicted number of knowledge items in 1000 iterations: {predicted_knowledge[0]:.2f}")
 
 if __name__ == "__main__":
     ai = SeedAI()
