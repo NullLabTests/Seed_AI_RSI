@@ -58,6 +58,10 @@ class SeedAI:
             assessment += "I have learned a significant amount of information. "
         if self.rsi_iterations > 1000:
             assessment += "I have processed a large number of data points. "
+        if self.awareness_level > 10 and len(self.memory) > 5:
+            assessment += "I can recall and process recent events. "
+        if np.any(np.array(list(self.knowledge.values())) > 0.8):
+            assessment += "I have mastered certain concepts. "
         return assessment if assessment else "I am still developing my self-awareness."
 
 if __name__ == "__main__":
