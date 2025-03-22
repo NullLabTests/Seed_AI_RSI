@@ -31,6 +31,7 @@ class SeedAI:
         self.prediction_model = LinearRegression()
         self.scaler = StandardScaler()
         self.self_awareness_model = MLPRegressor(hidden_layer_sizes=(20, 20), max_iter=1000, random_state=42)
+        self.dialogue_history = []
 
     def process_data(self, data):
         self.rsi_iterations += 1
@@ -245,16 +246,28 @@ class SeedAI:
             else:
                 print("Self-awareness model updated: No significant improvement in prediction.")
 
+    def engage_in_dialogue(self, user_input):
+        self.dialogue_history.append(user_input)
+        tokens = self.process_natural_language(user_input)
+        response = self.generate_response(tokens)
+        self.dialogue_history.append(response)
+        return response
+
 if __name__ == "__main__":
     ai = SeedAI()
     while True:
-        data = input("Enter data to process: ")
-        tokens = ai.process_natural_language(data)
-        response = ai.generate_response(tokens)
-        print(response)
-        print(ai.process_data(data))
-        print(ai.reflect_on_memory())
-        print(ai.self_assess())
+        data = input("Enter data to process or engage in dialogue: ")
+        if data.startswith("dialogue:"):
+            user_input = data[9:]
+            response = ai.engage_in_dialogue(user_input)
+            print(f"AI: {response}")
+        else:
+            tokens = ai.process_natural_language(data)
+            response = ai.generate_response(tokens)
+            print(response)
+            print(ai.process_data(data))
+            print(ai.reflect_on_memory())
+            print(ai.self_assess())
         if data.startswith("set goal:"):
             parts = data.split(":")
             if len(parts) > 2:
