@@ -10,6 +10,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
+from deap import base, creator, tools, algorithms
 
 # Download necessary NLTK data
 nltk.download('punkt', quiet=True)
@@ -32,6 +33,7 @@ class SeedAI:
         self.scaler = StandardScaler()
         self.self_awareness_model = MLPRegressor(hidden_layer_sizes=(20, 20), max_iter=1000, random_state=42)
         self.dialogue_history = []
+        self.setup_evolutionary_algorithm()
 
     def process_data(self, data):
         self.rsi_iterations += 1
@@ -50,6 +52,7 @@ class SeedAI:
         self.predict_future_state()
         self.apply_reinforcement_learning()
         self.update_self_awareness()
+        self.apply_evolutionary_algorithm()
         self.logger.log_progress()
         return f"Processed data: {data}"
 
@@ -252,6 +255,53 @@ class SeedAI:
         response = self.generate_response(tokens)
         self.dialogue_history.append(response)
         return response
+
+    def setup_evolutionary_algorithm(self):
+        creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+        creator.create("Individual", list, fitness=creator.FitnessMax)
+
+        self.toolbox = base.Toolbox()
+        self.toolbox.register("attr_float", random.uniform, 0, 1)
+        self.toolbox.register("individual", tools.initRepeat, creator.Individual, self.toolbox.attr_float, n=10)
+        self.toolbox.register("population", tools.initRepeat, list, self.toolbox.individual)
+
+        self.toolbox.register("evaluate", self.evaluate_individual)
+        self.toolbox.register("mate", tools.cxTwoPoint)
+        self.toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=0.2, indpb=0.2)
+        self.toolbox.register("select", tools.selTournament, tournsize=3)
+
+    def evaluate_individual(self, individual):
+        # Convert individual to a model parameter
+        params = np.array(individual)
+        # Use the params to adjust learning strategy
+        X = np.array(list(self.knowledge.values()))
+        y = np.mean(X, axis=1)
+        model = MLPRegressor(hidden_layer_sizes=(10, 10), max_iter=1000, random_state=42, **{'learning_rate_init': params[0], 'alpha': params[1]})
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        X_train_scaled = self.scaler.fit_transform(X_train)
+        X_test_scaled = self.scaler.transform(X_test)
+        model.fit(X_train_scaled, y_train)
+        y_pred = model.predict(X_test_scaled)
+        mse = mean_squared_error(y_test, y_pred)
+        return 1 / (mse + 1e-8),  # Avoid division by zero
+
+    def apply_evolutionary_algorithm(self):
+        if self.rsi_iterations % 1000 == 0 and len(self.knowledge) > 10:
+            pop = self.toolbox.population(n=50)
+            hof = tools.HallOfFame(1)
+            stats = tools.Statistics(lambda ind: ind.fitness.values)
+            stats.register("avg", np.mean)
+            stats.register("std", np.std)
+            stats.register("min", np.min)
+            stats.register("max", np.max)
+
+            pop, log = algorithms.eaSimple(pop, self.toolbox, cxpb=0.5, mutpb=0.2, ngen=10, stats=stats, halloffame=hof, verbose=False)
+
+            best_ind = hof[0]
+            best_params = np.array(best_ind)
+            self.model = MLPRegressor(hidden_layer_sizes=(10, 10), max_iter=1000, random_state=42, learning_rate_init=best_params[0], alpha=best_params[1])
+            self.learning_rate = best_params[0]
+            print(f"Evolutionary Algorithm applied: Best learning rate: {best_params[0]:.4f}, Best alpha: {best_params[1]:.4f}")
 
 if __name__ == "__main__":
     ai = SeedAI()
